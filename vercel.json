@@ -1,8 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/alert?secret=mysecretkey123",
-      "schedule": "0 * * * *"
-    }
-  ]
-}
+{}
