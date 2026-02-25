@@ -3,7 +3,7 @@
  * @param exchange The exchange name
  * @param rawSymbol The raw symbol from the exchange
  */
-export function standardizeSymbol(exchange: 'Binance' | 'Hyperliquid' | 'Bybit' | 'Gate' | 'OKX', rawSymbol: string): string | null {
+export function standardizeSymbol(exchange: 'Binance' | 'Hyperliquid' | 'Bybit' | 'Gate' | 'OKX' | 'Bitget' | 'Lighter' | 'Paradex', rawSymbol: string): string | null {
   if (exchange === 'Binance') {
     // Only map USDT pairs for simplicity, strip USDT
     if (rawSymbol.endsWith('USDT')) {
@@ -40,6 +40,27 @@ export function standardizeSymbol(exchange: 'Binance' | 'Hyperliquid' | 'Bybit' 
     // OKX symbols like BTC-USDT-SWAP
     if (rawSymbol.endsWith('-USDT-SWAP')) {
       let base = rawSymbol.replace('-USDT-SWAP', '');
+      if (base.startsWith('10000')) base = base.substring(5);
+      else if (base.startsWith('1000')) base = base.substring(4);
+      return base + '-PERP';
+    }
+    return null;
+  } else if (exchange === 'Bitget') {
+    // Bitget symbols like BTCUSDT
+    if (rawSymbol.endsWith('USDT')) {
+      let base = rawSymbol.replace('USDT', '');
+      if (base.startsWith('10000')) base = base.substring(5);
+      else if (base.startsWith('1000')) base = base.substring(4);
+      return base + '-PERP';
+    }
+    return null;
+  } else if (exchange === 'Lighter') {
+    // Lighter symbols are plain base names like "BTC", "ETH"
+    return rawSymbol + '-PERP';
+  } else if (exchange === 'Paradex') {
+    // Paradex symbols like BTC-USD-PERP
+    if (rawSymbol.endsWith('-USD-PERP')) {
+      let base = rawSymbol.replace('-USD-PERP', '');
       if (base.startsWith('10000')) base = base.substring(5);
       else if (base.startsWith('1000')) base = base.substring(4);
       return base + '-PERP';

@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/arbitrage",
-      "schedule": "* * * * *"
+      "path": "/api/cron/alert?secret=mysecretkey123",
+      "schedule": "0 * * * *"
     }
   ]
 }

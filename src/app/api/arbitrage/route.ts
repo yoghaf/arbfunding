@@ -3,14 +3,12 @@ import { fetchBinanceRates, ArbitrageData } from "@/lib/fetchers/binance";
 import { fetchHyperliquidRates } from "@/lib/fetchers/hyperliquid";
 import { fetchBybitRates } from "@/lib/fetchers/bybit";
 import { fetchGateRates } from "@/lib/fetchers/gate";
+import { fetchBitgetRates } from "@/lib/fetchers/bitget";
+import { fetchLighterRates } from "@/lib/fetchers/lighter";
+import { fetchParadexRates } from "@/lib/fetchers/paradex";
 import { calculateDelta } from "@/utils/quantHelpers";
-import { kv } from "@vercel/kv";
 
 export const revalidate = 0; // Disable Next.js caching for this route (pure dynamic)
-
-// For Telegram integration, ensure you have set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in your environment variables.
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 export interface ArbitrageOpportunity {
   symbol: string;
@@ -31,14 +29,17 @@ export interface ArbitrageOpportunity {
 export async function GET() {
   try {
     // 1. Concurrent Fetching
-    const [binanceRates, hyperliquidRates, bybitRates, gateRates] = await Promise.all([
+    const [binanceRates, hyperliquidRates, bybitRates, gateRates, bitgetRates, lighterRates, paradexRates] = await Promise.all([
       fetchBinanceRates(),
       fetchHyperliquidRates(),
       fetchBybitRates(),
-      fetchGateRates()
+      fetchGateRates(),
+      fetchBitgetRates(),
+      fetchLighterRates(),
+      fetchParadexRates()
     ]);
 
-    const allRates = [...binanceRates, ...hyperliquidRates, ...bybitRates, ...gateRates];
+    const allRates = [...binanceRates, ...hyperliquidRates, ...bybitRates, ...gateRates, ...bitgetRates, ...lighterRates, ...paradexRates];
 
     // 2. Group by Symbol
     const groupedBySymbol = new Map<string, ArbitrageData[]>();
@@ -84,59 +85,6 @@ export async function GET() {
       };
 
       opportunities.push(opp);
-
-      // 4. SMART ALERT LOGIC
-      if (deltaSpread8h > 10.0) {
-        try {
-          const stateKey = `alert:${symbol}`;
-          const state = await kv.get<{timestamp: number, last_spread: number}>(stateKey);
-
-          let shouldAlert = false;
-          let priority = "";
-
-          // Condition A & B
-          if (!state || (Date.now() - state.timestamp > 3600000)) {
-            // No state or older than 1 hour -> SEND Alert
-            shouldAlert = true;
-            priority = "STANDARD";
-          } else if (deltaSpread8h >= state.last_spread + 2.0) {
-            // Inside 1-hour window BUT spread widened significantly -> SEND High-Priority Alert
-            shouldAlert = true;
-            priority = "HIGH-PRIORITY 🚀";
-          }
-          // Condition C: Else Ignore
-
-          if (shouldAlert) {
-            // 5. Update KV State
-            await kv.set(stateKey, { timestamp: Date.now(), last_spread: deltaSpread8h }, { ex: 86400 });
-
-            // 6. Send to Telegram using actual raw rates and their respective intervals for transparency
-            if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-              const message = `
-<b>${priority} Arbitrage Alert: ${symbol}</b>
-Spread: <b>${deltaSpread8h.toFixed(2)}%</b> (8h annualized equivalent)
-Action: ${opp.recommendation}
-Short: ${maxRateData.exchange} at ${(maxRateData.rawRate * 100).toFixed(4)}% (${maxRateData.intervalHours}h)
-Long: ${minRateData.exchange} at ${(minRateData.rawRate * 100).toFixed(4)}% (${minRateData.intervalHours}h)
-              `.trim();
-
-              await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  chat_id: TELEGRAM_CHAT_ID,
-                  text: message,
-                  parse_mode: "HTML"
-                }),
-              }).catch(e => console.error("Telegram error:", e));
-            } else {
-              console.log(`[ALERT TRIGGERED] ${symbol} Spread: ${deltaSpread8h.toFixed(2)}%`);
-            }
-          }
-        } catch (kvError) {
-          console.error(`KV Error for ${symbol}:`, kvError);
-        }
-      }
     }
 
     // Sort opportunities by spread descending
