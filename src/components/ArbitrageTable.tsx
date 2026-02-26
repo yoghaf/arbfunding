@@ -190,11 +190,14 @@ export function ArbitrageTable({
         
         // Calculate how many 8-hour equivalent payments are needed to cover the 0.20% fee
         const paymentsNeeded = ASSUMED_TOTAL_FEE_PCT / spread8h;
-        const roundedPayments = Math.ceil(paymentsNeeded);
+        
+        // Don't round to 1x if it's less than 1, show the exact fractional amount
+        // Example: 0.24x ff means a quarter of a funding payment covers the fee.
+        const formattedPayments = paymentsNeeded.toFixed(2);
 
         return (
           <div className="flex flex-col">
-            <span className="font-mono text-sm text-sky-300">{roundedPayments}x ff</span>
+            <span className="font-mono text-sm text-sky-300">{formattedPayments}x FF</span>
             <span className="text-[9px] text-slate-500 uppercase tracking-wide">@ 0.20% Fee (8h eq)</span>
           </div>
         );
