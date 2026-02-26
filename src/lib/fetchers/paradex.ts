@@ -25,12 +25,15 @@ export async function fetchParadexRates(): Promise<ArbitrageData[]> {
         if (item.symbol && item.funding_rate) {
           const stdSymbol = standardizeSymbol("Paradex", item.symbol);
           if (stdSymbol) {
-            const rawRate = parseFloat(item.funding_rate);
+            // Paradex API returns the 8-hour expected funding rate.
+            // We treat continuous as 1hr intervals, so 1hr rate is rawRate / 8.
+            const rawRate8h = parseFloat(item.funding_rate);
+            const actual1hRate = rawRate8h / 8;
             results.push({
               exchange: "Paradex",
               symbol: stdSymbol,
-              rate8h: normalizeTo8hRate(rawRate, 1), // continuous/1hr
-              rawRate: rawRate,
+              rate8h: rawRate8h, // Already 8h equivalent
+              rawRate: actual1hRate,
               intervalHours: 1,
               nextFundingTime: nextHour.getTime(),
             });

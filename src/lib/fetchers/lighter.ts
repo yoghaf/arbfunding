@@ -25,12 +25,15 @@ export async function fetchLighterRates(): Promise<ArbitrageData[]> {
         if (item.symbol) {
           const stdSymbol = standardizeSymbol("Lighter", item.symbol);
           if (stdSymbol) {
-            const rawRate = parseFloat(item.rate);
+            // Lighter API returns the 8-hour expected funding rate.
+            // Since it pays hourly, the 1-hour rate is rawRate / 8.
+            const rawRate8h = parseFloat(item.rate);
+            const actual1hRate = rawRate8h / 8;
             results.push({
               exchange: "Lighter",
               symbol: stdSymbol,
-              rate8h: normalizeTo8hRate(rawRate, 1), // 1hr funding
-              rawRate: rawRate,
+              rate8h: rawRate8h, // Already 8h equivalent
+              rawRate: actual1hRate,
               intervalHours: 1,
               nextFundingTime: nextHour.getTime(),
             });

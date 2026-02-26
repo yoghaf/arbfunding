@@ -66,8 +66,7 @@ function formatTopOpportunities(opportunities: {
   msg += `💡 <i>Long = buka posisi long (bayar fee rendah)</i>\n`;
   msg += `💡 <i>Short = buka posisi short (terima fee tinggi)</i>\n`;
   msg += `🔄 <i>Alert setiap 1 jam</i>\n\n`;
-  const dashboardUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://arbfunding-fee.vercel.app");
-  msg += `🌐 <b>Full Dashboard:</b> ${dashboardUrl}`;
+  msg += `🌐 <b>Full Dashboard:</b> https://arbfunding-fee.vercel.app`;
 
   return msg;
 }
