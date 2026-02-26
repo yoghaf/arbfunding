@@ -178,6 +178,37 @@ export function ArbitrageTable({
       },
       sortDescFirst: true,
     }),
+    columnHelper.display({
+      id: "bep",
+      header: "EST. BEP",
+      cell: (info) => {
+        const spread8h = info.row.original.deltaSpread8h;
+        // Assume 0.05% taker fee per leg. Entry (2 legs) + Exit (2 legs) = 4 * 0.05% = 0.20% total fee
+        const ASSUMED_TOTAL_FEE_PCT = 0.20;
+        
+        // Spread is per 8h. Daily spread = spread8h * 3
+        const dailySpread = spread8h * 3;
+        
+        if (dailySpread <= 0) return <span className="text-slate-500">—</span>;
+        
+        const daysToBreakeven = ASSUMED_TOTAL_FEE_PCT / dailySpread;
+        
+        let displayStr = "";
+        if (daysToBreakeven < 1) {
+          const hours = daysToBreakeven * 24;
+          displayStr = `${hours.toFixed(1)} hrs`;
+        } else {
+          displayStr = `${daysToBreakeven.toFixed(1)} days`;
+        }
+
+        return (
+          <div className="flex flex-col">
+            <span className="font-mono text-sm text-sky-300">{displayStr}</span>
+            <span className="text-[9px] text-slate-500 uppercase tracking-wide">@ 0.20% Fee</span>
+          </div>
+        );
+      },
+    }),
     columnHelper.accessor("recommendation", {
       header: "RECOMMENDATION",
       cell: (info) => (
