@@ -186,19 +186,25 @@ export function ArbitrageTable({
         // Assume 0.05% taker fee per leg. Entry (2 legs) + Exit (2 legs) = 4 * 0.05% = 0.20% total fee
         const ASSUMED_TOTAL_FEE_PCT = 0.20;
         
-        if (spread8h <= 0) return <span className="text-slate-500">—</span>;
+        // Spread is per 8h. Daily spread = spread8h * 3
+        const dailySpread = spread8h * 3;
         
-        // Calculate how many 8-hour equivalent payments are needed to cover the 0.20% fee
-        const paymentsNeeded = ASSUMED_TOTAL_FEE_PCT / spread8h;
+        if (dailySpread <= 0) return <span className="text-slate-500">—</span>;
         
-        // Don't round to 1x if it's less than 1, show the exact fractional amount
-        // Example: 0.24x ff means a quarter of a funding payment covers the fee.
-        const formattedPayments = paymentsNeeded.toFixed(2);
+        const daysToBreakeven = ASSUMED_TOTAL_FEE_PCT / dailySpread;
+        
+        let displayStr = "";
+        if (daysToBreakeven < 1) {
+          const hours = daysToBreakeven * 24;
+          displayStr = `${hours.toFixed(1)} hrs`;
+        } else {
+          displayStr = `${daysToBreakeven.toFixed(1)} days`;
+        }
 
         return (
           <div className="flex flex-col">
-            <span className="font-mono text-sm text-sky-300">{formattedPayments}x FF</span>
-            <span className="text-[9px] text-slate-500 uppercase tracking-wide">@ 0.20% Fee (8h eq)</span>
+            <span className="font-mono text-sm text-sky-300">{displayStr}</span>
+            <span className="text-[9px] text-slate-500 uppercase tracking-wide">@ 0.20% Fee</span>
           </div>
         );
       },
