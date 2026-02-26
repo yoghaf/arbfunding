@@ -6,6 +6,7 @@ import { fetchGateRates } from "@/lib/fetchers/gate";
 import { fetchBitgetRates } from "@/lib/fetchers/bitget";
 import { fetchLighterRates } from "@/lib/fetchers/lighter";
 import { fetchParadexRates } from "@/lib/fetchers/paradex";
+import { fetchVariationalRates } from "@/lib/fetchers/variational";
 import { calculateDelta } from "@/utils/quantHelpers";
 
 export const revalidate = 0; // Disable Next.js caching for this route (pure dynamic)
@@ -29,17 +30,18 @@ export interface ArbitrageOpportunity {
 export async function GET() {
   try {
     // 1. Concurrent Fetching
-    const [binanceRates, hyperliquidRates, bybitRates, gateRates, bitgetRates, lighterRates, paradexRates] = await Promise.all([
+    const [binanceRates, hyperliquidRates, bybitRates, gateRates, bitgetRates, lighterRates, paradexRates, variationalRates] = await Promise.all([
       fetchBinanceRates(),
       fetchHyperliquidRates(),
       fetchBybitRates(),
       fetchGateRates(),
       fetchBitgetRates(),
       fetchLighterRates(),
-      fetchParadexRates()
+      fetchParadexRates(),
+      fetchVariationalRates()
     ]);
 
-    const allRates = [...binanceRates, ...hyperliquidRates, ...bybitRates, ...gateRates, ...bitgetRates, ...lighterRates, ...paradexRates];
+    const allRates = [...binanceRates, ...hyperliquidRates, ...bybitRates, ...gateRates, ...bitgetRates, ...lighterRates, ...paradexRates, ...variationalRates];
 
     // 2. Group by Symbol
     const groupedBySymbol = new Map<string, ArbitrageData[]>();

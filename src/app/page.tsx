@@ -8,7 +8,7 @@ import { Activity, RefreshCw, Zap, Trophy } from "lucide-react";
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function Home() {
-  const [selectedExchanges, setSelectedExchanges] = useState<string[]>(['Hyperliquid', 'Binance', 'Bybit', 'Gate', 'Bitget', 'Lighter', 'Paradex']);
+  const [selectedExchanges, setSelectedExchanges] = useState<string[]>(['Hyperliquid', 'Binance', 'Bybit', 'Gate', 'Bitget', 'Lighter', 'Paradex', 'Variational']);
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<ArbitrageOpportunity[]>(
     "/api/arbitrage",
@@ -138,7 +138,7 @@ export default function Home() {
           <>
             {/* Exchange Filters */}
             <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
-              {['Hyperliquid', 'Binance', 'Bybit', 'Gate', 'Bitget', 'Lighter', 'Paradex'].map(exchange => (
+              {['Hyperliquid', 'Binance', 'Bybit', 'Gate', 'Bitget', 'Lighter', 'Paradex', 'Variational'].map(exchange => (
                 <button
                   key={exchange}
                   onClick={() => {
@@ -165,7 +165,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-8 text-center text-xs text-slate-600">
-          Auto-refreshes every 30s · Powered by Binance, Hyperliquid, Bybit, Gate, Bitget, Lighter & Paradex APIs
+          Auto-refreshes every 30s · Powered by Binance, Hyperliquid, Bybit, Gate, Bitget, Lighter, Paradex & Variational APIs
         </footer>
       </div>
     </div>

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       const isGroup = chatType === "group" || chatType === "supergroup";
       const welcome = isGroup
         ? `🤖 <b>Funding Rate Bot Active!</b>\n\nBot ini akan mengirim alert Top 5 peluang arbitrage funding rate setiap 1 jam.\n\n<b>Commands:</b>\n/top - Lihat top 5 peluang sekarang\n/help - Bantuan`
-        : `👋 <b>Welcome to Funding Rate Alert Bot!</b>\n\nBot ini memberikan notifikasi <b>Top 5 peluang arbitrage</b> funding rate dari 7 exchange:\nBinance, Hyperliquid, Bybit, Gate, Bitget, Lighter, Paradex\n\n🔔 Alert dikirim setiap <b>1 jam</b>.\n\n<b>Commands:</b>\n/top - Lihat top 5 peluang sekarang\n/help - Bantuan\n\n💡 <i>Add bot ini ke grup untuk alert otomatis!</i>`;
+        : `👋 <b>Welcome to Funding Rate Alert Bot!</b>\n\nBot ini memberikan notifikasi <b>Top 5 peluang arbitrage</b> funding rate dari 8 exchange:\nBinance, Hyperliquid, Bybit, Gate, Bitget, Lighter, Paradex, Variational\n\n🔔 Alert dikirim setiap <b>1 jam</b>.\n\n<b>Commands:</b>\n/top - Lihat top 5 peluang sekarang\n/help - Bantuan\n\n💡 <i>Add bot ini ke grup untuk alert otomatis!</i>`;
 
       await sendReply(chatId, welcome);
       return NextResponse.json({ ok: true });
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
           msg += `   🔴 Short: ${opp.maxExchange} (${(opp.maxRawRate * 100).toFixed(4)}%/${opp.maxIntervalHours}h)\n\n`;
         });
 
-        msg += `🔄 <i>Data live dari 7 exchange</i>`;
+        msg += `🔄 <i>Data live dari 8 exchange</i>`;
         await sendReply(chatId, msg);
       } catch {
         await sendReply(chatId, "⚠️ Gagal mengambil data. Coba lagi nanti.");
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 
     // /help command
     if (text === "/help" || text.startsWith("/help@")) {
-      const help = `📖 <b>Bantuan Funding Rate Bot</b>\n\n<b>Apa itu Funding Rate Arbitrage?</b>\nMembuka posisi Long di exchange dengan rate rendah, dan Short di exchange dengan rate tinggi. Selisihnya = profit.\n\n<b>Commands:</b>\n/top - Top 5 peluang arbitrage saat ini\n/help - Pesan ini\n\n<b>Exchange yang dipantau:</b>\nBinance, Hyperliquid, Bybit, Gate, Bitget, Lighter, Paradex\n\n🔔 Alert otomatis dikirim setiap 1 jam ke grup/chat ini.`;
+      const help = `📖 <b>Bantuan Funding Rate Bot</b>\n\n<b>Apa itu Funding Rate Arbitrage?</b>\nMembuka posisi Long di exchange dengan rate rendah, dan Short di exchange dengan rate tinggi. Selisihnya = profit.\n\n<b>Commands:</b>\n/top - Top 5 peluang arbitrage saat ini\n/help - Pesan ini\n\n<b>Exchange yang dipantau:</b>\nBinance, Hyperliquid, Bybit, Gate, Bitget, Lighter, Paradex, Variational\n\n🔔 Alert otomatis dikirim setiap 1 jam ke grup/chat ini.`;
       await sendReply(chatId, help);
       return NextResponse.json({ ok: true });
     }

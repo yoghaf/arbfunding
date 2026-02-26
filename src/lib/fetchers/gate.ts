@@ -18,16 +18,24 @@ export async function fetchGateRates(): Promise<ArbitrageData[]> {
         const stdSymbol = standardizeSymbol('Gate', item.name);
         if (stdSymbol) {
           const rawRate = parseFloat(item.funding_rate);
-          // Gate returns interval in seconds in 'funding_interval'
-          const intervalHours = (item.funding_interval || 28800) / 3600;
-          results.push({
-            exchange: "Gate",
-            symbol: stdSymbol,
-            rate8h: normalizeTo8hRate(rawRate, intervalHours),
-            rawRate: rawRate,
-            intervalHours: intervalHours,
-            nextFundingTime: item.funding_next_apply ? Number(item.funding_next_apply) * 1000 : 0
-          });
+            const intervalHours = (item.funding_interval || 28800) / 3600;
+            
+            let nextFundingTime = item.funding_next_apply ? Number(item.funding_next_apply) * 1000 : 0;
+            // Gate API sometimes returns a past date for funding_next_apply. 
+            // Fallback to calculating the next interval boundary from the Unix epoch.
+            if (nextFundingTime <= Date.now()) {
+                const intervalMs = (item.funding_interval || 28800) * 1000;
+                nextFundingTime = Math.ceil(Date.now() / intervalMs) * intervalMs;
+            }
+
+            results.push({
+              exchange: "Gate",
+              symbol: stdSymbol,
+              rate8h: normalizeTo8hRate(rawRate, intervalHours),
+              rawRate: rawRate,
+              intervalHours: intervalHours,
+              nextFundingTime: nextFundingTime
+            });
         }
       }
     }

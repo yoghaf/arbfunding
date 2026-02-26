@@ -3,7 +3,7 @@
  * @param exchange The exchange name
  * @param rawSymbol The raw symbol from the exchange
  */
-export function standardizeSymbol(exchange: 'Binance' | 'Hyperliquid' | 'Bybit' | 'Gate' | 'OKX' | 'Bitget' | 'Lighter' | 'Paradex', rawSymbol: string): string | null {
+export function standardizeSymbol(exchange: 'Binance' | 'Hyperliquid' | 'Bybit' | 'Gate' | 'OKX' | 'Bitget' | 'Lighter' | 'Paradex' | 'Variational', rawSymbol: string): string | null {
   if (exchange === 'Binance') {
     // Only map USDT pairs for simplicity, strip USDT
     if (rawSymbol.endsWith('USDT')) {
@@ -66,6 +66,9 @@ export function standardizeSymbol(exchange: 'Binance' | 'Hyperliquid' | 'Bybit' 
       return base + '-PERP';
     }
     return null;
+  } else if (exchange === 'Variational') {
+    // Variational symbols are base names like "BTC", "ETH"
+    return rawSymbol + '-PERP';
   }
   return null;
 }

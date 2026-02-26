@@ -6,6 +6,7 @@ import { fetchGateRates } from "@/lib/fetchers/gate";
 import { fetchBitgetRates } from "@/lib/fetchers/bitget";
 import { fetchLighterRates } from "@/lib/fetchers/lighter";
 import { fetchParadexRates } from "@/lib/fetchers/paradex";
+import { fetchVariationalRates } from "@/lib/fetchers/variational";
 import { calculateDelta } from "@/utils/quantHelpers";
 import type { ArbitrageData } from "@/lib/fetchers/binance";
 
@@ -88,7 +89,7 @@ export async function GET(request: Request) {
 
   try {
     // 1. Fetch all rates
-    const [binanceRates, hyperliquidRates, bybitRates, gateRates, bitgetRates, lighterRates, paradexRates] =
+    const [binanceRates, hyperliquidRates, bybitRates, gateRates, bitgetRates, lighterRates, paradexRates, variationalRates] =
       await Promise.all([
         fetchBinanceRates(),
         fetchHyperliquidRates(),
@@ -97,11 +98,12 @@ export async function GET(request: Request) {
         fetchBitgetRates(),
         fetchLighterRates(),
         fetchParadexRates(),
+        fetchVariationalRates(), // Added fetchVariationalRates()
       ]);
 
     const allRates = [
       ...binanceRates, ...hyperliquidRates, ...bybitRates,
-      ...gateRates, ...bitgetRates, ...lighterRates, ...paradexRates
+      ...gateRates, ...bitgetRates, ...lighterRates, ...paradexRates, ...variationalRates // Added ...variationalRates
     ];
 
     // 2. Group by symbol
